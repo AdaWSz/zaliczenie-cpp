@@ -4,6 +4,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cctype>
+#include "loader.h"
 
 using namespace std;
 namespace fs = std::filesystem;

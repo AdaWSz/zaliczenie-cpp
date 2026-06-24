@@ -1,6 +1,8 @@
 #ifndef TRANSCRIPTION_H
 #define TRANSCRIPTION_H
 
-int function(int a);
+#include <string>
 
+std::string ReverseString(std::string input);
+int function(int a);
 #endif

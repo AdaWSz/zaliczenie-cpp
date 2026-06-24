@@ -4,14 +4,20 @@
 #include <string>
 
 class Sequence {
-private:
-    const std::string possible_nucl;
 
 public:
     std::string seq;
-
-    Sequence(const std::string& input);
-    void format();
+    std::string transc;
+    enum Type {
+        Template = 1,
+        Coding = 2,
+        Mrna = 3
+    };
+    Type type;
+Sequence(const std::string& input, Type t);
+void Format();
+std::string ReverseSeq();
+std::string Transcribe();
 };
 
 #endif
