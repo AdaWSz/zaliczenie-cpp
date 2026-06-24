@@ -2,21 +2,11 @@
 #include <string>
 #include <cctype>
 #include <unordered_set>
-#include <array>
 #include "sequence.h"
 using namespace std;
 
 //Wykorzystano unordered set ze względu na wydajność.
 static const unordered_set<char> possible_nucl = {'A','T','G','C','U','R','Y','S','W','K','M','B','D','H','V'};
-
-static const std::array<char, 256> comp = [] {
-    std::array<char, 256> a{}; //funkcja lambda, aby wypełnić wartości.
-    a['A'] = 'T'; a['C'] = 'G'; a['G'] = 'C'; a['T'] = 'A';
-    a['U'] = 'A'; a['R'] = 'Y'; a['Y'] = 'R'; a['S'] = 'W';
-    a['W'] = 'S'; a['K'] = 'M'; a['B'] = 'V'; a['D'] = 'H';
-    a['H'] = 'D'; a['V'] = 'B'; a['N'] = 'N';
-    return a;
-}();
 
 /*
  * Template = 1,
