@@ -2,7 +2,8 @@
 #define TRANSCRIPTION_H
 
 #include <string>
+#include "sequence.h"
 
 std::string ReverseString(std::string input);
-int function(int a);
+Sequence Transcribe (Sequence input_sequence);
 #endif

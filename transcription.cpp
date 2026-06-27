@@ -43,30 +43,32 @@ Sequence Transcribe(Sequence input_sequence)
  * Mrna = 3
  */
 {
-    string reverse;
+    string holder;
+    char* iterator;
     Sequence transc("",Sequence::Mrna);
     switch (input_sequence.type)
     {
         case 1:
-            reverse = ReverseString(input_sequence.seq);
-            for (char c: reverse)
+            holder = ReverseString(input_sequence.seq);
+            for (char c: holder)
             {
                 transc.seq += comp[static_cast<unsigned char>(c)];
             }
             break;
         case 2:
-            //TODO:
-            //For the sake of it, użyj pointerów czy coś.
-            //Zamień każde "T" na "A".
-            //Może zamień input w array.
+            holder = input_sequence.seq;
+            iterator = holder.data();
+            while (*iterator != string::npos)
+            {
+                if (*iterator == 'T')
+                {
+                    *iterator = 'U';
+                }
+            }
+            transc.seq = holder;
+            break;
         case 3:
             transc.seq = input_sequence.seq;
     }
     return transc;
-}
-
-int function(int a)
-{
-    int b=2*a;
-    return b;
 }

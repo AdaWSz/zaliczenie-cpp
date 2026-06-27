@@ -7,7 +7,6 @@ class Sequence {
 
 public:
     std::string seq;
-    std::string transc;
     enum Type {
         Template = 1,
         Coding = 2,
@@ -20,4 +19,17 @@ std::string ReverseSeq();
 std::string Transcribe();
 };
 
+class AASeq {
+public:
+    std::string seq;
+
+    std::
+};
+
 #endif
+
+/*
+ * KLASA AASeq
+ * Może posiadać wbudowany
+ *
+ */

@@ -6,7 +6,7 @@
 using namespace std;
 
 //Wykorzystano unordered set ze względu na wydajność.
-static const unordered_set<char> possible_nucl = {'A','T','G','C','U','R','Y','S','W','K','M','B','D','H','V'};
+static const unordered_set<char> possible_nucl = {'A','T','G','C','U'/*,'R','Y','S','W','K','M','B','D','H','V'*/,'N'}; //Zbyt dużo problemów z kodami niejednoznaczności.
 
 /*
  * Template = 1,
@@ -27,21 +27,7 @@ void Sequence::Format()
             c = 'N';
     }
 }
-//Transcribe - fills the transc string public variable (and returns it if needed)
-/*
-std::string Sequence::Transcribe()
-{
-    transc = "";
-    switch (type)
-        case 1:
-            for (char c: seq)
-            {
-                transc += comp[static_cast<unsigned char>(c)];
-            }
 
-
-}
-*/
 
 /*
 class Sequence {
