@@ -45,7 +45,7 @@ Sequence Transcribe(Sequence input_sequence)
 {
     string holder;
     char* iterator;
-    Sequence transc("",Sequence::Mrna);
+    Sequence transc("",3);
     switch (input_sequence.type)
     {
         case 1:

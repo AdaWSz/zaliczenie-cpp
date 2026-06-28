@@ -14,55 +14,91 @@ void PrintHelp()
     << "-t - Interpret input as DNA template strand\n"
     << "-c - Interpret input as DNA coding strand\n"
     << "-m - Interpret input as transcribed mRNA.\n"
-    << "-d - Override file input, use string instead\n" <<endl;
+    << "-d - Override file input, use string instead\n"
+    << "At least one of -t/-c/-m MUST be included."
+    << "Takes only one file/string."<<endl;
 }
 
 int main(int argc, char **argv)
 {
     if (argc >= 3)
     {
-        int seq_type;
-        string path;
+        int seq_type = 0;
         string seq_string;
         bool read_directly = false;
-        for(int i = 1; i < argc; i++)
+        bool got_input = false;
+        string source;
+
+        for (int i = 1; i < argc; i++)
         {
             if (argv[i][0] == '-')
             {
-                int len = sizeof(&argv[i])/sizeof(&argv[i][0]);
-                for (int j = 1; j < len; j++)
+                for (int j = 1; argv[i][j] != '\0'; j++)
                 {
                     switch (argv[i][j])
                     {
-                        case 't': seq_type = 1;
-                        case 'c': seq_type = 2;
-                        case 'm': seq_type = 3;
-                        case 'd': read_directly = true; //Figure this out later.
-                        default: PrintHelp(); return 0;
+                        case 't':
+                        case 'c':
+                        case 'm':
+                            if (seq_type != 0)
+                            {
+                                PrintHelp();
+                                return 1;
+                            }
+                            seq_type = (argv[i][j] == 't') ? 1 :
+                            (argv[i][j] == 'c') ? 2 : 3;
+                            break;
+                        case 'd': read_directly = true; break;
+                        case 'h': PrintHelp(); return 0;
+                        default: PrintHelp(); return 1;
                     }
                 }
             }
             else
             {
-                if (!read_directly)
+                if (got_input)
                 {
-                    seq_string = LoadSequence(argv[i]);
-                    if (seq_string.empty())
-                        return 0;
+                    PrintHelp();
+                    return 1;
                 }
-                else
-                    seq_string = argv[i];
-
+                source = argv[i];
+                got_input = true;
             }
+        }
 
+        if (!got_input) {
+            PrintHelp();
+            return 1;
+        }
+
+        if (!read_directly)
+        {
+            seq_string = LoadSequence(source); // Already checks if file exists.
+            if (seq_string.empty()) return 1;
+        }
+        else
+        {
+            seq_string = source;
+            if (seq_string.empty()) return 1;
+        }
+
+        Sequence sequence(seq_string,seq_type);
+        sequence.Format();
+        Sequence transcript = Transcribe(sequence);
+        vector<string> proteins = Translate(transcript);
+
+        for(string protein: proteins)
+        {
+            cout << protein << endl;
         }
 
     }
 
-
     else
+    {
         PrintHelp();
-
+        return 1;
+    }
     return 0;
 }
 /*
