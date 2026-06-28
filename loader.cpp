@@ -107,7 +107,7 @@ string LoadSequence(const string& filestring)
     }
     else
     {
-        cerr << "File does not exist!" << endl;
+        cerr << "File " << filestring << " does not exist!" << endl;
         return "";
     }
     return seq;

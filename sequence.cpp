@@ -6,7 +6,7 @@
 using namespace std;
 
 //Wykorzystano unordered set ze względu na wydajność.
-static const unordered_set<char> possible_nucl = {'A','T','G','C','U'/*,'R','Y','S','W','K','M','B','D','H','V'*/,'N'}; //Zbyt dużo problemów z kodami niejednoznaczności.
+static const unordered_set<char> possible_nucl = {'A','T','G','C','U','R','Y','S','W','K','M','B','D','H','V','N'};
 
 /*
  * Template = 1,
@@ -14,7 +14,7 @@ static const unordered_set<char> possible_nucl = {'A','T','G','C','U'/*,'R','Y',
  * Mrna = 3
 */
 
-Sequence::Sequence(const string& input, Type t)
+Sequence::Sequence(const string& input, int t)
     : seq(input), type(t) {};
 
 //Format - works DIRECTLY on sequence to remove any disallowed characters.

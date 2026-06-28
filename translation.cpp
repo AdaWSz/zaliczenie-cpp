@@ -5,36 +5,10 @@
 #include <vector>
 #include "sequence.h"
 #include "translation.h"
+
 using namespace std;
 
-/*TODO:
- * 1. Zapisz tablicę nukleotydów
- *      (Tą rozszerzoną o te nukleotydy spoza 5 kanonicznych)
- * 2. Dla kodonów niezdecydowanych - poszukaj jakichś statystyk, matrycy częstości i na jej podstawie to zrób.
- */
 
-/* K - AAA AAG AAR
- * N - AAU AAC AAY
- * I - AUU AUC AUA AUY AUM AUH AUW
- * M - AUG
- * S - AGU AGC AGY
- * L - CUU CUC CUA CUG CUN CUR CUY CUS CUW CUK CUM CUB CUD CUH CUV UUA UUG UUR YUA YUG
- * P - CCU CCC CCA CCG CCN CCR CCY CCS CCW CCK CCM CCB CCD CCH CCV
- * V - GUU GUC GUA GUG GUN GUR GUY GUS GUW GUK GUM GUB GUD GUH GUV
- * H - CAU CAC CAY
- * D - GAU GAC GAY
- * E - GAA GAG GAR
- * F - UUU UUC UUY
- * G - GGU GGC GGA GGG GGY GGR GGS GGW GGK GGM GGB GGD GGH GGV GGN
- * Q - CAA CAG CAR
- * R - CGU CGC CGA CGG CGY CGR CGS CGW CGK CGM CGD CGB CGH CGV CGN AGA AGG AGR
- * T - ACU ACC ACA ACG ACN ACY ACR ACS ACW ACK ACM ACD ACB ACH ACV
- * W - UGG
- * Y - UAU UAC UAY
- * A - GCU GCC GCA GCG GCN GCY GCR GCS GCW GCK GCM GCD GCB GCH GCV
- * C - UGU UGC UGY
- * STOP - UAA UAG UGA UAR URA
- */
 
 static inline uint8_t nuc(char c) {  //Funkcja dekodująca kodon - cz. 1
     switch (c) {
@@ -56,10 +30,16 @@ static inline uint8_t nuc(char c) {  //Funkcja dekodująca kodon - cz. 1
         default:  return 0;             // 0000
     }
 }
-
+/*
 static inline uint16_t cid(char codon[3]) {
     uint16_t m0 = nuc(codon[0]), m1 = nuc(codon[1]), m2 = nuc(codon[2]);
     return (uint16_t)(m0 | m1 << 4 | m2 << 16); //Shifting bitów tak, aby powstało coś w stylu 0000|0100|0010|1100
+}
+*/
+
+static inline array<uint8_t,3> cid(array<char,3> codon)
+{
+    return {nuc(codon[0]),nuc(codon[1]),nuc(codon[2])};
 }
 
 // A - 0, C - 1, G - 2, U - 3
@@ -83,68 +63,96 @@ static const std::array<char, 64> codon_table = {
        '*', 'C', 'W', 'C', 'L', 'F', 'L', 'F'
 };
 
-/*
- * Jak przekonwertować 16 (12) bitów na 6?
- *
- * Oto jak:
- *
- * Podzielić 16-bitowy string na 4 równe części.
- *      cid >> 4, cid >> 16 na 2 przednich nt
- *      ostatni otrzymać przez bitwise AND
- *      czyli cid & 15 (0000010000101100 & 0000000000001111 -> 0000000000001100)
- *
- * Odrzucić niepotrzebne, zrobić logarytm o podstawie 2 z reszty.
- * Tak żeby uzyskać pozycję bitu włączonego.
- *      std::bit_width(index) - 1
- *
- *
- *      Jeśli jest więcej niż 1 bit flipnięty w jedym z 4 równych części
- *      Najpierw należy rozbić na części pierwsze - jak są 2 bity pozytywne, zamienić
- *      na dwa 4-bitowe elementy z 1 bitem.
- *
- * Robisz ewaluację tych otrzymanych bitów przez otrzymanie i sprawdzenie każdego w tabeli kodonów.
- *      Ewaluacja na zasadzie 16x + 4y + z, gdzie x, y, z to pozycje bitów z 1.
- *
- * Jeśli wszystkie mapują do tego samego aa - wstawiamy ten aa.
- * Jeśli nie - wstawiamy X.
- *
- */
 
 
-char GetCodon(char codon[3]) {
-    int id = cid(codon);
-    if (id < 0)
+static vector<int> expandAmbiguity(uint8_t mask) {
+    // bity: A=0001, C=0010, G=0100, U=1000
+    std::vector<int> bases; // indeksy: A=0, C=1, G=2, U=3
+    if (mask & 0b0001) bases.push_back(0); // A
+    if (mask & 0b0010) bases.push_back(1); // C
+    if (mask & 0b0100) bases.push_back(2); // G
+    if (mask & 0b1000) bases.push_back(3); // U
+    return bases;
+}
+
+
+char GetCodon(array<char,3> codon) {
+    array<uint8_t,3> id = cid(codon);
+
+    vector<int> v1 = expandAmbiguity(id[0]);
+    vector<int> v2 = expandAmbiguity(id[1]);
+    vector<int> v3 = expandAmbiguity(id[2]);
+
+    if (v1.empty() || v2.empty() || v3.empty()) return 'X';
+
+    char first = '\0';
+    bool first_set = false;
+
+    for (int x : v1)
+        for (int y : v2)
+            for (int z : v3) {
+                char aa = codon_table[16*x + 4*y + z];
+                if (!first_set) {
+                    first = aa;
+                    first_set = true;
+                } else if (aa != first) {
+                    return 'N';
+                }
+            }
+
+    if (first_set)
+        return first;
+    else
         return 'X';
-    return codon_table[id];
 }
 
 vector<string> Translate(Sequence mrna)
 {
     string protein = "";
-    char codon[3];
+    array<char,3> codon;
+    array<char,3> start = {'A','U','G'};
+    char aa;
     bool is_translating = false;
     vector<string> proteins;
     for (int n=0; n < 3; n++)
     {
         for (int i=n; i < mrna.seq.size(); i=i+3)
         {
-            if(i+1 < mrna.seq.size() and i+2 < mrna.seq.size())
+            if(i+1 < mrna.seq.size() && i+2 < mrna.seq.size())
             {
-                if(cid(codon) == 14 and !is_translating)
+                codon[0] = mrna.seq[i]; codon[1] = mrna.seq[i+1]; codon[2] = mrna.seq[i+2];
+                if (!is_translating)
                 {
-                    is_translating = true;
-                    protein = protein + GetCodon(codon);
-                }
-                else if(protein.back() == '*')
-                {
-                    is_translating = false;
-                    proteins.push_back(protein);
-                    protein = "";
+                    if (codon == start)
+                    {
+                        is_translating = true;
+                        aa = GetCodon(codon);
+                        protein = protein + aa;
+                    }
                 }
                 else
-                    protein = protein + GetCodon(codon);
+                {
+                    aa = GetCodon(codon);
+                    if (aa == '*')
+                    {
+                        is_translating = false;
+                        proteins.push_back(protein);
+                        protein = "";
+                    }
+                    else
+                    {
+                        protein = protein + aa;
+                    }
+                }
             }
         }
+        if (!protein.empty())
+        {
+            protein = protein + '!'; //! oznacza, że białko nigdy się nie skończyło.
+            proteins.push_back(protein);
+        }
+    protein = "";
+    is_translating = false;
     }
     return proteins;
 }

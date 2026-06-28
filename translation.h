@@ -1,6 +1,12 @@
 #ifndef TRANSLATION_H
 #define TRANSLATION_H
+#include <array>
+#include <vector>
+#include <string>
+#include "sequence.h"
 
+char GetCodon(std::array<char,3> codon);
+std::vector<std::string> Translate(Sequence mrna);
 
 #endif
 
