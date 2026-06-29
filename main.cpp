@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
         for(string protein: proteins)
         {
-            cout << protein << endl;
+            cout << "Found sequence: \n" << protein << endl;
         }
 
     }

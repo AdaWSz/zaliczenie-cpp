@@ -14,7 +14,7 @@ using namespace std;
 
 static const std::array<char, 256> comp = [] {
     std::array<char, 256> a{}; //funkcja lambda, aby wypełnić wartości.
-    a['A'] = 'T'; a['C'] = 'G'; a['G'] = 'C'; a['T'] = 'A';
+    a['A'] = 'U'; a['C'] = 'G'; a['G'] = 'C'; a['T'] = 'A';
     a['U'] = 'A'; a['R'] = 'Y'; a['Y'] = 'R'; a['S'] = 'W';
     a['W'] = 'S'; a['K'] = 'M'; a['B'] = 'V'; a['D'] = 'H';
     a['H'] = 'D'; a['V'] = 'B'; a['N'] = 'N';
@@ -57,13 +57,10 @@ Sequence Transcribe(Sequence input_sequence)
             break;
         case 2:
             holder = input_sequence.seq;
-            iterator = holder.data();
-            while (*iterator != string::npos)
+            for (char& c : holder)
             {
-                if (*iterator == 'T')
-                {
-                    *iterator = 'U';
-                }
+                if (c == 'T')
+                    c = 'U';
             }
             transc.seq = holder;
             break;

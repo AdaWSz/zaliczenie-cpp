@@ -2,6 +2,7 @@
 #define SEQUENCE_H
 
 #include <string>
+#include <array>
 
 class Sequence {
 
@@ -16,14 +17,24 @@ public:
     Type type; */
 Sequence(const std::string& input, int t);
 void Format();
-std::string ReverseSeq();
-std::string Transcribe();
+};
+
+class AASeq {
+public:
+    std::string seq;
+    int reading_frame;
+    bool ended;
+
+private:
+    std::array<char,20> possible_aa;
+
 };
 
 #endif
 
 /*
  * KLASA AASeq
- * Może posiadać wbudowany
- *
+ * Może posiadać wbudowany licznik aminokwasów
+ * Interpretować czy białko ma poprawne zakończenie czy nie
+ * Posiadać informację z jakiej ramki odczytu pochodzi.
  */
