@@ -37,11 +37,12 @@ static inline uint16_t cid(char codon[3]) {
 }
 */
 
-static inline array<uint8_t,3> cid(array<char,3> codon)
+static inline array<uint8_t,3> cid(array<char,3> codon) //Codon ID
 {
-    return {nuc(codon[0]),nuc(codon[1]),nuc(codon[2])};
+    return {nuc(codon[0]),nuc(codon[1]),nuc(codon[2])}; //Ułatwienie - zwraca w arrayu (nie uint16_t)
 }
 
+//Array z zakodowanymi kodonami.
 // A - 0, C - 1, G - 2, U - 3
 // 16x + 4y + z
 static const std::array<char, 64> codon_table = {
@@ -64,7 +65,7 @@ static const std::array<char, 64> codon_table = {
 };
 
 
-
+// Rozszerzanie ambiguity przez operacje bitwise AND.
 static vector<int> expandAmbiguity(uint8_t mask) {
     // bity: A=0001, C=0010, G=0100, U=1000
     std::vector<int> bases; // indeksy: A=0, C=1, G=2, U=3
@@ -77,13 +78,13 @@ static vector<int> expandAmbiguity(uint8_t mask) {
 
 
 char GetCodon(array<char,3> codon) {
-    array<uint8_t,3> id = cid(codon);
+    array<uint8_t,3> id = cid(codon); //Dla podanego kodonu każdą pozycję "szyfrujemy"
 
-    vector<int> v1 = expandAmbiguity(id[0]);
+    vector<int> v1 = expandAmbiguity(id[0]); //Wektory, bo nie wiemy ile może być możliwych nt
     vector<int> v2 = expandAmbiguity(id[1]);
     vector<int> v3 = expandAmbiguity(id[2]);
 
-    if (v1.empty() || v2.empty() || v3.empty()) return 'X';
+    if (v1.empty() || v2.empty() || v3.empty()) return '?'; //Jak coś po drodze jest nie tak to zwracamy ?
 
     char first = '\0';
     bool first_set = false;
@@ -96,24 +97,24 @@ char GetCodon(array<char,3> codon) {
                     first = aa;
                     first_set = true;
                 } else if (aa != first) {
-                    return 'N';
+                    return 'X';
                 }
             }
 
     if (first_set)
         return first;
     else
-        return 'X';
+        return '?'; //? oznacza błąd - ułatwienie w debugowaniu.
 }
 
-vector<string> Translate(Sequence mrna)
+vector<AASeq> Translate(Sequence mrna)
 {
-    string protein = "";
+    string proteinseq = "";
     array<char,3> codon;
     array<char,3> start = {'A','U','G'};
     char aa;
     bool is_translating = false;
-    vector<string> proteins;
+    vector<AASeq> proteins;
     for (int n=0; n < 3; n++)
     {
         for (int i=n; i < mrna.seq.size(); i=i+3)
@@ -127,7 +128,7 @@ vector<string> Translate(Sequence mrna)
                     {
                         is_translating = true;
                         aa = GetCodon(codon);
-                        protein = protein + aa;
+                        proteinseq = proteinseq + aa;
                     }
                 }
                 else
@@ -136,22 +137,26 @@ vector<string> Translate(Sequence mrna)
                     if (aa == '*')
                     {
                         is_translating = false;
+                        AASeq protein(proteinseq,n);
+                        protein.Format();
                         proteins.push_back(protein);
-                        protein = "";
+                        proteinseq = "";
                     }
                     else
                     {
-                        protein = protein + aa;
+                        proteinseq = proteinseq + aa;
                     }
                 }
             }
         }
-        if (!protein.empty())
+        if (!proteinseq.empty())
         {
-            protein = protein + '!'; //! oznacza, że białko nigdy się nie skończyło.
+            proteinseq = proteinseq + '!'; //! oznacza, że białko nigdy się nie skończyło.
+            AASeq protein(proteinseq,n);
+            protein.Format();
             proteins.push_back(protein);
         }
-    protein = "";
+    proteinseq = "";
     is_translating = false;
     }
     return proteins;

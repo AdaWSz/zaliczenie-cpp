@@ -22,7 +22,6 @@ string Lowercase(const string& input)
     return output;
 }
 
-//Czy to jest w ogóle potrzebne?
 /*
 bool CheckFileExtension(const string& filename, const string& ext)
 {
@@ -69,18 +68,18 @@ string LoadSequence(const string& filestring)
         }
         else if (extn == ".fa" or extn == ".fasta")
         {
-            cout << "File is fasta, loading" << endl;
+            cout << "File is fasta, loading..." << endl;
             bool passed_header = false;
             while (getline(seqfile, line))
             {
                 if (!line.empty() and line[0] == '>') //wykrywanie headerów
                 {
-                    if (!passed_header) //Na razie dla ułatwienia bierze tylko pierwszą sekwencję z pliku multi-FASTA.
+                    if (!passed_header) //Dla ułatwienia bierze tylko pierwszą sekwencję z plików multi-FASTA.
                         passed_header = true;
                     else
                         break;
                 }
-                else
+                else if (!line.empty())
                 {
                     seq = seq + line;
                 }
@@ -90,11 +89,25 @@ string LoadSequence(const string& filestring)
         else
         {
             bool is_binary = BinaryCheck(seqfile);
+            bool passed_first = false;
             if (!is_binary)
             {
                 while (getline(seqfile, line))
                 {
-                    seq = seq + line;
+                    if (line.empty()) continue;
+
+                    if (line[0] == '>')
+                    {
+                        if (!passed_first)
+                        {
+                            cout << "File looks like fasta, loading..." << endl;
+                            passed_first = true;
+                            continue;
+                        }
+                        break;
+                    }
+
+                    seq += line;
                 }
             }
             else

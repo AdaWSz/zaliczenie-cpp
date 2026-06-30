@@ -26,11 +26,11 @@ string ReverseString(string input) // Po prostu trawimy input - kopiujemy i zwra
     char* s = input.data();
     char* e = input.data() + input.size() - 1;
 
-    while (s < e)
+    while (s < e) //podwójne pointery - jeden na początek, drugi na koniec
     {
         swap(*s, *e);
         ++s;
-        --e;
+        --e; //idą aż się spotkają, zamieniając miejscami pozycje.
     }
     return input;
 }
@@ -43,19 +43,18 @@ Sequence Transcribe(Sequence input_sequence)
  * Mrna = 3
  */
 {
-    string holder;
-    char* iterator;
+    string holder; //coś do trzymania sekwencji w międzyczasie
     Sequence transc("",3);
-    switch (input_sequence.type)
+    switch (input_sequence.type) //sprawdzamy co to za sekwencja
     {
-        case 1:
+        case 1: //template - odwrócić i komplementarność, przy czym A -> U
             holder = ReverseString(input_sequence.seq);
             for (char c: holder)
             {
                 transc.seq += comp[static_cast<unsigned char>(c)];
             }
             break;
-        case 2:
+        case 2: //coding - zamienić T na U
             holder = input_sequence.seq;
             for (char& c : holder)
             {
@@ -64,7 +63,7 @@ Sequence Transcribe(Sequence input_sequence)
             }
             transc.seq = holder;
             break;
-        case 3:
+        case 3: //mRNA - nic.
             transc.seq = input_sequence.seq;
     }
     return transc;

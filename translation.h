@@ -6,7 +6,7 @@
 #include "sequence.h"
 
 char GetCodon(std::array<char,3> codon);
-std::vector<std::string> Translate(Sequence mrna);
+std::vector<AASeq> Translate(Sequence mrna);
 
 #endif
 

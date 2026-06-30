@@ -85,11 +85,39 @@ int main(int argc, char **argv)
         Sequence sequence(seq_string,seq_type);
         sequence.Format();
         Sequence transcript = Transcribe(sequence);
-        vector<string> proteins = Translate(transcript);
+        vector<AASeq> proteins = Translate(transcript);
 
-        for(string protein: proteins)
+        cout << "Peptides found: " << proteins.size() << "\n=====\n";
+
+        static constexpr char aanames[] = {
+            'A','C','D','E','F','G','H','I','K','L','M',
+            'N','P','Q','R','S','T','V','W','Y','X'
+        };
+
+        for(AASeq protein: proteins)
         {
-            cout << "Found sequence: \n" << protein << endl;
+            protein.CountAmino();
+
+            cout << "Found peptide:" << endl;
+            cout << "Reading frame (n nucleotides from start of sequence): " << protein.reading_frame << endl;
+            cout << "Ended correctly (STOP sequence found): ";
+
+            if(protein.ended)
+                cout << "Yes\n";
+            else
+                cout << "No\n";
+            cout << "Sequence length: " << protein.seq.length() << endl;
+            cout << "Amino acid composition: " << endl;
+            for(int i = 0; i < 21; i++)
+            {
+                cout << aanames[i] << " : "<< protein.counts[i] << "\t";
+                if(i%5 == 0)
+                {
+                    cout << endl;
+                }
+            }
+            cout << "Sequence: \n" << protein.seq << endl;
+            cout << "----------" << endl;
         }
 
     }
@@ -109,33 +137,4 @@ int main(int argc, char **argv)
  * -c - Interpret input as DNA coding strand
  * -m - Interpret input as transcribed mRNA.
  * -d - Override file input, use string instead
- */
-
-
-/*
- * 1 metoda - 3 przejścia po nici, translacja as-you-go
- * Złożoność czasowa O(3n/3)
- * 2 metoda - Jednokrotne przejście po nici, zaznaczenie wszystkich kodonów AUG, powrót do każdego i translacja aż do kodonu STOP.
- * Złożoność czasowa O(n + (p + q + r + s + ...)/3)
- * Metoda 1 jest szybsza, ale co jeśli w trakcie pojawi się jeszcze jeden AUG?
- */
-
-/*
- * TODO:
- * 1. Przygotuj argumenty do podawania przy odpalaniu programu:
- *      a. Definicja typu sekwencji:
- *          I. Sekwencja z nici matrycowej (Sens)
- *          II. Sekwencja z nici komplementarnej do matrycowej (Kodująca - antysens)
- *          III. Sekwencja mRNA
- * 2. Obróbka danych
- *      a. Jeśli nić matrycowa - odwrócenie i transkrypcja
- *      b. Jeśli nić kodująca - zamiana T na U.
- * 3. Translacja
- *      1 metoda - 3 przejścia po nici, translacja as-you-go
- *          Złożoność czasowa O(3n/3)
- *      2 metoda - Jednokrotne przejście po nici, zaznaczenie wszystkich kodonów AUG, powrót do każdego i translacja aż do kodonu STOP.
- *          Złożoność czasowa O(n + (q*k)/3)
- *      Metoda 1 jest szybsza, ale co jeśli w trakcie pojawi się jeszcze jeden AUG?
- *          !!! To zależy, czy chcesz napisać ORF finder, czy translator !!!
- *          Właściwie prosi o translator.
  */
