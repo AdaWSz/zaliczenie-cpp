@@ -66,7 +66,7 @@ string LoadSequence(const string& filestring)
             cerr << "Could not open file: " << filepath.string() << endl;
             return "";
         }
-        else if (extn == ".fa" or extn == ".fasta")
+        else if (extn == ".fa" or extn == ".fasta") // sprawdzamy rozszerzenie - na pewno wtedy to FASTA (chyba.)
         {
             cout << "File is fasta, loading..." << endl;
             bool passed_header = false;
@@ -81,12 +81,12 @@ string LoadSequence(const string& filestring)
                 }
                 else if (!line.empty())
                 {
-                    seq = seq + line;
+                    seq += line;
                 }
             }
-            cout << seq << endl;
+            //cout << seq << endl;
         }
-        else
+        else // Jeśli nie wykryjemy od razu że to FASTA po rozszerzeniu
         {
             bool is_binary = BinaryCheck(seqfile);
             bool passed_first = false;
@@ -94,17 +94,17 @@ string LoadSequence(const string& filestring)
             {
                 while (getline(seqfile, line))
                 {
-                    if (line.empty()) continue;
+                    if (line.empty()) continue; // prosty skip pustych linii
 
-                    if (line[0] == '>')
+                    if (line[0] == '>') // header FASTA
                     {
-                        if (!passed_first)
+                        if (!passed_first) //jeśli nie jesteśmy już za pierwszą linią
                         {
                             cout << "File looks like fasta, loading..." << endl;
                             passed_first = true;
                             continue;
                         }
-                        break;
+                        break; // jeśli to nie pierwszy ">" - kończymy (nie obsługujemy multi-FASTA).
                     }
 
                     seq += line;

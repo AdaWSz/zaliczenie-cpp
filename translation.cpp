@@ -115,13 +115,13 @@ vector<AASeq> Translate(Sequence mrna)
     char aa;
     bool is_translating = false;
     vector<AASeq> proteins;
-    for (int n=0; n < 3; n++)
+    for (int n=0; n < 3; n++) // 3 ramki odczytu
     {
-        for (int i=n; i < mrna.seq.size(); i=i+3)
+        for (int i=n; i < mrna.seq.size(); i=i+3) // zaczynamy w każdej i skaczemy po 3
         {
-            if(i+1 < mrna.seq.size() && i+2 < mrna.seq.size())
+            if(i+1 < mrna.seq.size() && i+2 < mrna.seq.size()) //out-of-bounds check
             {
-                codon[0] = mrna.seq[i]; codon[1] = mrna.seq[i+1]; codon[2] = mrna.seq[i+2];
+                codon[0] = mrna.seq[i]; codon[1] = mrna.seq[i+1]; codon[2] = mrna.seq[i+2]; //tworzymy kodon
                 if (!is_translating)
                 {
                     if (codon == start)
@@ -131,10 +131,10 @@ vector<AASeq> Translate(Sequence mrna)
                         proteinseq = proteinseq + aa;
                     }
                 }
-                else
+                else //jeśli już translacja się zaczęła
                 {
                     aa = GetCodon(codon);
-                    if (aa == '*')
+                    if (aa == '*') // kodon STOP
                     {
                         is_translating = false;
                         AASeq protein(proteinseq,n);
@@ -156,7 +156,7 @@ vector<AASeq> Translate(Sequence mrna)
             protein.Format();
             proteins.push_back(protein);
         }
-    proteinseq = "";
+    proteinseq = ""; //just in case na samym końcu
     is_translating = false;
     }
     return proteins;

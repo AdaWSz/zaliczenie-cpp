@@ -6,6 +6,7 @@ Pracę pisałem pod osiągnięcie oceny 5.
  Usage: `translator-cpp \[options\] file`
 
 **Options (must include at least one of -t/-c/-m):**
+
 `-t` - Interpret input as DNA template strand
 `-c` - Interpret input as DNA coding strand
 `-m` - Interpret input as transcribed mRNA.

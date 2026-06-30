@@ -35,7 +35,7 @@ AASeq::AASeq(const string input, int rf)
     {
         if (input.back() == '!') //Inferujemy na podstawie tego, czy w zwróconej sekwencji na końcu pojawia się !
         {
-            seq = input.substr(0, input.size() - 1);
+            seq = input.substr(0, input.size() - 1); //usuwamy !
             ended = false;
         }
         else
@@ -52,7 +52,7 @@ AASeq::AASeq(const string input, int rf)
     reading_frame = rf;
 }
 
-void AASeq::Format()
+void AASeq::Format() //Formatowanie - lekko zmienione
 {
     for (char& c: seq)
     {
@@ -73,7 +73,7 @@ void AASeq::CountAmino()
      static constexpr unsigned char map[26] = { // constexpr - da się obliczyć w czasie kompilacji.
                                               0, 20, 1, 2, 3, 4, 5, 6, 7, 20,
                                               8, 9, 10, 11, 20, 12, 13, 14,
-                                              15, 16, 20, 17, 18, 20, 19, 20}; //Dla całego alfabetu - 20 to nieprawidłowe znaki
+                                              15, 16, 20, 17, 18, 20, 19, 20}; //Maska dla całego alfabetu - 20 to nieprawidłowe znaki
     for (char c: seq)
         counts[map[c-'A']]++; //od c odejmujemy wartość ASCII dla 'A', co daje nam wartość w map[26], którą możemy zwrócić.
 }
